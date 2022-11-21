@@ -1,14 +1,14 @@
 class Bullet extends PhysicsElement {
-    html = '<div id=":id" style="width: 6px; height: 6px; border-radius: 3px; background-color: white; position: absolute"></div>'
+    html = '<div id=":id" style="width: 10px; height: 10px; border-radius: 3px; background-color: white; position: absolute; left: :left; top: :top"></div>'
     domElement = null;
-    speed = 50;
+    speed = 70;
     cretionTime = (new Date()).getTime();
-    durationTime = 300;
+    durationTime = 2000;
 
     constructor(id, rot, posX, posY) {
         super();
         this.id = id;
-        this.html = this.html.replace(':id', id);
+        this.html = this.html.replace(':id', id).replace(':left', posX).replace(':top', posY);
         this.velX = this.speed * Math.sin(rot);
         this.velY = -this.speed * Math.cos(rot);
         this.posX = posX;
@@ -16,8 +16,8 @@ class Bullet extends PhysicsElement {
     }
 
     draw = () => {
-        this.domElement.style.left = (this.posX - 3).toString();
-        this.domElement.style.top = (this.posY - 3).toString();
+        this.domElement.style.left = (this.posX - 5).toString();
+        this.domElement.style.top = (this.posY - 5).toString();
     }
 
     update(dt) {

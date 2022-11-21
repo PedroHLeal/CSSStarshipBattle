@@ -42,7 +42,7 @@ physics.readKeys = () => {
 
     if (this.keysPressed.includes('v')) {
         if (!ship.isImmune) {
-            ship && ship.takeDamage();
+            ship && ship.takeDamage([1, 0]);
         }
     }
 }

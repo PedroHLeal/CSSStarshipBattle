@@ -1,34 +1,47 @@
 class Ship extends PhysicsElement {
     html = `<div 
-        id=":id"
-        style="width: 0;
-                height: 0;
-                border-bottom: 60px solid white;
-                border-left: 20px solid transparent;
-                border-right: 20px solid transparent;
-                border-top: 70px solid transparent;
-                position: absolute">
+        style="position: absolute"
+        id=":id">
+            <div style="width: 0;
+                    height: 0;
+                    border-bottom: 60px solid white;
+                    border-left: 20px solid transparent;
+                    border-right: 20px solid transparent;
+                    border-top: 0px solid transparent;"></div>
+            <div id=":id-engine" 
+                    style="width: 40px;
+                            height: 15px;
+                            background-color: white;
+                            transition: opacity :optransitions;
+                            background: linear-gradient(180deg, rgba(255,54,1,1) 0%, rgba(255,243,0,0.6382488479262673) 56%, rgba(255,243,0,0) 100%);">
+                    </div> 
         </div>`
     domElement = null;
     rotation = 0;
     radRotation = 0;
-    enginePower = 5;
-    speedLimit = 20;
+    enginePower = 15;
+    speedLimit = 25;
     currentSpeed = 0;
     lifes = 3;
 
-    immunityTime = 2000;
+    immunityTime = 3000;
     isImmune = false;
     damageTakenTime = 0;
 
     flickerState = true;
-    flickerTime = 100;
+    flickerTime = 45;
     lastFlickerTime = 0;
+
+    engineTurnOnTime = 0.5;
+    engineStatus = 0;
+
+    fireRate = 500;
+    lastBulletShotOn = null;
 
     constructor(id) {
         super();
         this.id = id;
-        this.html = this.html.replace(':id', id);
+        this.html = this.html.replaceAll(':id', id).replace(':optransition', this.engineTurnOnTime);
     }
 
     update = (dt) => {
@@ -48,9 +61,13 @@ class Ship extends PhysicsElement {
 
         this.posX += this.velX * dt;
         this.posY += this.velY * dt;
-        if (this.isImmune && ((new Date()).getTime() - this.damageTakenTime) > this.immunityTime) {
-            this.isImmune = false;
-            this.flickerState = true;
+        
+        if (this.isImmune) {
+            const currentTime = (new Date()).getTime();
+            if (currentTime - this.damageTakenTime > this.immunityTime) {
+                this.isImmune = false;
+                this.flickerState = true;
+            }
         }
 
         this.clearForces()
@@ -63,11 +80,15 @@ class Ship extends PhysicsElement {
                 this.lastFlickerTime = (new Date()).getTime();
             }
         }
-
+        
+        const engine = document.getElementById(this.id + '-engine');
+        engine.style.opacity = +this.engineStatus;
         this.domElement.style.opacity = +this.flickerState;
-        this.domElement.style.left = (this.posX - 25).toString();
-        this.domElement.style.top = (this.posY - 60).toString();
+        this.domElement.style.left = (this.posX - 20).toString();
+        this.domElement.style.top = (this.posY - 30).toString();
         this.domElement.style.transform = `rotate(${this.rotation}deg)`
+
+        this.engineStatus = 0;
     }
 
     rotate = (deg) => {
@@ -76,6 +97,7 @@ class Ship extends PhysicsElement {
     }
 
     moveForward = (turbo) => {
+        this.engineStatus = 1;
         this.applyForceX((this.enginePower + turbo) * Math.sin(this.radRotation));
         this.applyForceY((-this.enginePower - turbo) * Math.cos(this.radRotation));
     }
@@ -93,11 +115,15 @@ class Ship extends PhysicsElement {
     }
 
     fire = (physics) => {
-        const bullet = new Bullet("bullet" + physics.fieldElements.length, this.radRotation, this.posX, this.posY);
-        physics.add(bullet);
+        const currentTime = (new Date()).getTime();
+        if (!this.lastBulletShotOn || currentTime - this.lastBulletShotOn > this.fireRate) {
+            this.lastBulletShotOn = currentTime;
+            const bullet = new Bullet("bullet" + (new Date()).getTime(), this.radRotation, this.posX, this.posY);
+            physics.add(bullet);
+        }
     }
 
-    takeDamage = () => {
+    takeDamage = (direction) => {
         this.damageTakenTime = (new Date()).getTime();
         this.isImmune = true;
         this.lifes --;
@@ -105,5 +131,8 @@ class Ship extends PhysicsElement {
         if (this.lifes < 0) {
             this.shouldDestroy = true;
         }
+
+        this.velX = this.speedLimit * direction[0];
+        this.velY = this.speedLimit * direction[1];
     }
 }
