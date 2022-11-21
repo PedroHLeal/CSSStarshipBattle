@@ -3,7 +3,7 @@ class Bullet extends PhysicsElement {
     domElement = null;
     speed = 50;
     cretionTime = (new Date()).getTime();
-    durationTime = 500;
+    durationTime = 300;
 
     constructor(id, rot, posX, posY) {
         super();

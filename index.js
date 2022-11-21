@@ -8,6 +8,8 @@ physics.add(ship)
 ship.posX = field.getBoundingClientRect().width/2;
 ship.posY = field.getBoundingClientRect().height/2;
 
+ship = null;
+
 physics.start(60);
 
 toggleStop = () => {
@@ -21,20 +23,27 @@ toggleStop = () => {
 }
 
 physics.readKeys = () => {
+    const ship = physics.getById("ship");
     if (this.keysPressed.includes('d')) {
-        ship.rotate(5)
+        ship && ship.rotate(5);
     }
 
     if (this.keysPressed.includes('a')) {
-        ship.rotate(-5)
+        ship && ship.rotate(-5);
     }
 
     if (this.keysPressed.includes('w')) {
-        ship.moveForward(0)
+        ship && ship.moveForward(0);
     }
 
     if (this.keysPressed.includes('s')) {
-        ship.moveBackward(0)
+        ship && ship.moveBackward(0);
+    }
+
+    if (this.keysPressed.includes('v')) {
+        if (!ship.isImmune) {
+            ship && ship.takeDamage();
+        }
     }
 }
 
@@ -54,5 +63,6 @@ document.addEventListener('keyup', (event) => {
 });
 
 document.addEventListener('click', (event) => {
-    ship.fire(physics);
+    const ship = physics.getById("ship");
+    ship && ship.fire(physics);
 });
