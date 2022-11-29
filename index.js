@@ -4,10 +4,16 @@ let physics = new SomeJsPhysics('field');
 keysPressed = [];
 ship = new Ship("ship");
 physics.add(ship)
+physics.add(new Ship("ship2"));
 
 ship.posX = field.getBoundingClientRect().width/2;
 ship.posY = field.getBoundingClientRect().height/2;
 
+let ship2 = physics.getById("ship2");
+ship2.posX = field.getBoundingClientRect().width/3;
+ship2.posY = field.getBoundingClientRect().height/3;
+
+ship2 = null;
 ship = null;
 
 physics.start(60);
@@ -20,6 +26,11 @@ toggleStop = () => {
         physics.start(60);
         field.style.backgroundColor = '#000';
     }
+}
+
+physics.onCollision = (element, collider) => {
+    console.log(element);
+    console.log(collider);
 }
 
 physics.readKeys = () => {

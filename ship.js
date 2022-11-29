@@ -19,8 +19,8 @@ class Ship extends PhysicsElement {
     domElement = null;
     rotation = 0;
     radRotation = 0;
-    enginePower = 15;
-    speedLimit = 25;
+    enginePower = 10;
+    speedLimit = 20;
     currentSpeed = 0;
     lifes = 3;
 
@@ -37,6 +37,16 @@ class Ship extends PhysicsElement {
 
     fireRate = 500;
     lastBulletShotOn = null;
+
+    collider = triangleCollider
+
+    getBoundingBox = () => {
+        return [
+            {x: this.posX, y: this.posY - 30},
+            {x: this.posX - 20, y: this.posY + 30},
+            {x: this.posX + 20, y: this.posY + 30}
+        ];
+    } 
 
     constructor(id) {
         super();

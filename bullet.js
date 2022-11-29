@@ -5,6 +5,10 @@ class Bullet extends PhysicsElement {
     cretionTime = (new Date()).getTime();
     durationTime = 2000;
 
+    getBoundingBox = () => {
+        return [{x: this.posX - 5, y: this.posY - 5}];
+    }
+
     constructor(id, rot, posX, posY) {
         super();
         this.id = id;
