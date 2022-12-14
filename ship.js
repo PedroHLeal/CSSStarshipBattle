@@ -37,8 +37,9 @@ class Ship extends PhysicsElement {
 
     fireRate = 500;
     lastBulletShotOn = null;
-
+    debug = false;
     collider = triangleCollider
+    type = 'ship';
 
     getBoundingBox = () => {
         return [
@@ -48,9 +49,15 @@ class Ship extends PhysicsElement {
         ];
     } 
 
-    constructor(id) {
+    constructor(id, debug) {
         super();
         this.id = id;
+        this.debug = debug;
+        if (debug) {
+            this.html += `<div style="position: absolute; width: 4px; height: 4px; background-color: green;" id=":id-debug-1"></div>`;
+            this.html += `<div style="position: absolute; width: 4px; height: 4px; background-color: green;" id=":id-debug-2"></div>`;
+            this.html += `<div style="position: absolute; width: 4px; height: 4px; background-color: green;" id=":id-debug-3"></div>`;
+        }
         this.html = this.html.replaceAll(':id', id).replace(':optransition', this.engineTurnOnTime);
     }
 
@@ -83,7 +90,7 @@ class Ship extends PhysicsElement {
         this.clearForces()
     };
 
-    draw = () => {
+    draw = (camera) => {
         if (this.isImmune) {
             if ((new Date()).getTime() - this.lastFlickerTime > this.flickerTime) {
                 this.flickerState = !this.flickerState;
@@ -94,15 +101,28 @@ class Ship extends PhysicsElement {
         const engine = document.getElementById(this.id + '-engine');
         engine.style.opacity = +this.engineStatus;
         this.domElement.style.opacity = +this.flickerState;
-        this.domElement.style.left = (this.posX - 20).toString();
-        this.domElement.style.top = (this.posY - 30).toString();
+        this.domElement.style.left = (this.posX + camera.x - 20).toString();
+        this.domElement.style.top = (this.posY + camera.y - 30).toString();
         this.domElement.style.transform = `rotate(${this.rotation}deg)`
+
+        if (this.debug) {
+            const d1 = document.getElementById(this.id + '-debug-1');
+            const d2 = document.getElementById(this.id + '-debug-2');
+            const d3 = document.getElementById(this.id + '-debug-3');
+            const box = this.getBoundingBox();
+            d1.style.left = box[0].x;
+            d1.style.top = box[0].y;
+            d2.style.left = box[1].x;
+            d2.style.top = box[1].y;
+            d3.style.left = box[2].x;
+            d3.style.top = box[2].y;
+        }
 
         this.engineStatus = 0;
     }
 
     rotate = (deg) => {
-        this.rotation += deg
+        this.rotation += deg;
         this.radRotation = this.rotation * Math.PI / 180;
     }
 
@@ -128,21 +148,23 @@ class Ship extends PhysicsElement {
         const currentTime = (new Date()).getTime();
         if (!this.lastBulletShotOn || currentTime - this.lastBulletShotOn > this.fireRate) {
             this.lastBulletShotOn = currentTime;
-            const bullet = new Bullet("bullet" + (new Date()).getTime(), this.radRotation, this.posX, this.posY);
+            const bullet = new Bullet("bullet" + (new Date()).getTime(), this.radRotation, this.posX, this.posY, this);
             physics.add(bullet);
         }
     }
 
     takeDamage = (direction) => {
-        this.damageTakenTime = (new Date()).getTime();
-        this.isImmune = true;
-        this.lifes --;
-
-        if (this.lifes < 0) {
-            this.shouldDestroy = true;
+        if (!this.isImmune) {
+            this.damageTakenTime = (new Date()).getTime();
+            this.isImmune = true;
+            this.lifes --;
+    
+            if (this.lifes < 0) {
+                this.shouldDestroy = true;
+            }
+    
+            this.velX = this.speedLimit * direction[0];
+            this.velY = this.speedLimit * direction[1];
         }
-
-        this.velX = this.speedLimit * direction[0];
-        this.velY = this.speedLimit * direction[1];
     }
 }

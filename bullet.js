@@ -1,15 +1,16 @@
 class Bullet extends PhysicsElement {
-    html = '<div id=":id" style="width: 10px; height: 10px; border-radius: 3px; background-color: white; position: absolute; left: :left; top: :top"></div>'
+    html = '<div id=":id" style="width: 5px; height: 5px; border-radius: 3px; background-color: white; position: absolute; left: :left; top: :top"></div>'
     domElement = null;
-    speed = 70;
+    speed = 30;
     cretionTime = (new Date()).getTime();
     durationTime = 2000;
+    type = "bullet";
 
     getBoundingBox = () => {
-        return [{x: this.posX - 5, y: this.posY - 5}];
+        return [{x: this.posX, y: this.posY}];
     }
 
-    constructor(id, rot, posX, posY) {
+    constructor(id, rot, posX, posY, parent) {
         super();
         this.id = id;
         this.html = this.html.replace(':id', id).replace(':left', posX).replace(':top', posY);
@@ -17,11 +18,12 @@ class Bullet extends PhysicsElement {
         this.velY = -this.speed * Math.cos(rot);
         this.posX = posX;
         this.posY = posY;
+        this.parent = parent;
     }
 
-    draw = () => {
-        this.domElement.style.left = (this.posX - 5).toString();
-        this.domElement.style.top = (this.posY - 5).toString();
+    draw = (camera) => {
+        this.domElement.style.left = (this.posX - 5 + camera.x).toString();
+        this.domElement.style.top =  (this.posY - 5 + camera.y).toString();
     }
 
     update(dt) {
