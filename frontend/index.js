@@ -119,4 +119,5 @@ document.addEventListener("keyup", (event) => {
 document.addEventListener("click", (event) => {
   const ship = physics.getById("ship");
   ship && ship.fire(physics);
+  socket.send("tiro");
 });
