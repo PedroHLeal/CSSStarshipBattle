@@ -12,9 +12,9 @@ class Ring extends PhysicsElement {
                 left: 0;
                 top: 0;
                 box-shadow:
-                    0 0 3px 3px #fff,
-                    0 0 5px 4px #f0f,
-                    0 0 7px 7px #0ff;"></div>`;
+                    0 0 24px 24px #fff,
+                    0 0 40px 32px #f0f,
+                    0 0 56px 56px #0ff;"></div>`;
 
     
     constructor() {

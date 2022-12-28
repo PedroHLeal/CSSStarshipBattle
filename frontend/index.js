@@ -29,7 +29,7 @@ toggleStop = () => {
   }
 };
 
-physics.onCollision = (element, collider) => {
+const onCollision = (element, collider) => {
   if (
     element.type === "ship" &&
     collider.parent !== element &&
@@ -40,14 +40,40 @@ physics.onCollision = (element, collider) => {
   }
 };
 
+const handleCollisions = (element) => {
+  if (element.collider) {
+    for (const colliderElement of physics.fieldElements) {
+      if (
+        colliderElement != element &&
+        colliderElement.getBoundingBox &&
+        element.getBoundingBox
+      ) {
+        for (const point of colliderElement.getBoundingBox()) {
+          if (element.collider(element.getBoundingBox(), point)) {
+            onCollision(element, colliderElement);
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+const handleDestroys = (element, i) => {
+  if (element.shouldDestroy) {
+    physics.remove(element.id);
+    physics.fieldElements.splice(parseInt(i), 1);
+  }
+}
+
 physics.readKeys = (dt) => {
   const ship = physics.getById("ship");
   if (this.keysPressed.includes("d")) {
-    ship && ship.rotate(15*dt);
+    ship && ship.rotate(15 * dt);
   }
 
   if (this.keysPressed.includes("a")) {
-    ship && ship.rotate(-15*dt);
+    ship && ship.rotate(-15 * dt);
   }
 
   if (this.keysPressed.includes("w")) {
@@ -59,11 +85,21 @@ physics.readKeys = (dt) => {
   }
 };
 
-physics.postUpdate = () => {
+physics.postUpdate = (element, i) => {
+  handleCollisions(element);
+
+  if (element?.type === "ship" && getDistance(element.posX, element.posY, 0 , 0) > 700) {
+    element.shouldDestroy = true;
+  }
+
+  handleDestroys(element, i);
+
   const ship = physics.getById("ship");
-  physics.camera.x = - ship.posX + field.getBoundingClientRect().width / 2;
-  physics.camera.y = - ship.posY + field.getBoundingClientRect().height / 2;
-}
+  if (ship) {
+    physics.camera.x = -ship.posX + field.getBoundingClientRect().width / 2;
+    physics.camera.y = -ship.posY + field.getBoundingClientRect().height / 2;
+  }
+};
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {

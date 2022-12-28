@@ -1,0 +1,12 @@
+version: "3.7"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: backend-starshipbattle
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/usr/src/app
+    command: tail -F anything
