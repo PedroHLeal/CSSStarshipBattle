@@ -1,9 +1,15 @@
+import SomeJsPhysics from "./SomeJSPhysics/somephysicsjs/somejsphysics.js";
+import { getDistance } from "./SomeJSPhysics/somephysicsjs/Utils/geometry.js";
+
+import Ship from "./ship.js";
+import Ring from "./ring.js";
+
 const field = document.getElementById("field");
 let physics = new SomeJsPhysics("field");
 
 physics.add(new Ring());
-keysPressed = [];
-ship = new Ship("ship", false);
+const keysPressed = [];
+let ship = new Ship("ship", false);
 physics.add(ship);
 physics.add(new Ship("ship2", false));
 
@@ -19,7 +25,7 @@ ship = null;
 
 physics.start(60);
 
-toggleStop = () => {
+const toggleStop = () => {
   if (physics.running) {
     physics.stop();
     field.style.backgroundColor = "#333";
@@ -57,30 +63,30 @@ const handleCollisions = (element) => {
       }
     }
   }
-}
+};
 
 const handleDestroys = (element, i) => {
   if (element.shouldDestroy) {
     physics.remove(element.id);
     physics.fieldElements.splice(parseInt(i), 1);
   }
-}
+};
 
 physics.readKeys = (dt) => {
   const ship = physics.getById("ship");
-  if (this.keysPressed.includes("d")) {
+  if (keysPressed.includes("d")) {
     ship && ship.rotate(15 * dt);
   }
 
-  if (this.keysPressed.includes("a")) {
+  if (keysPressed.includes("a")) {
     ship && ship.rotate(-15 * dt);
   }
 
-  if (this.keysPressed.includes("w")) {
+  if (keysPressed.includes("w")) {
     ship && ship.moveForward(0);
   }
 
-  if (this.keysPressed.includes("s")) {
+  if (keysPressed.includes("s")) {
     ship && ship.moveBackward(0);
   }
 };
@@ -88,7 +94,10 @@ physics.readKeys = (dt) => {
 physics.postUpdate = (element, i) => {
   handleCollisions(element);
 
-  if (element?.type === "ship" && getDistance(element.posX, element.posY, 0 , 0) > 700) {
+  if (
+    element?.type === "ship" &&
+    getDistance(element.posX, element.posY, 0, 0) > 700
+  ) {
     element.shouldDestroy = true;
   }
 
