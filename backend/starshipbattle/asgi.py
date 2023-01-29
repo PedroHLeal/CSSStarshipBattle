@@ -17,7 +17,7 @@ from channels.auth import AuthMiddlewareStack
 
 from .websocket_urls import websocket_urlpatterns
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'starshipbattle.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "starshipbattle.settings")
 
 application = ProtocolTypeRouter(
     {

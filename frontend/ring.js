@@ -2,13 +2,14 @@ import PhysicsElement from "./SomeJSPhysics/somephysicsjs/PhysicsElement.js";
 
 export default class Ring extends PhysicsElement {
   id = "ring";
+  size = 1600;
   domElement = null;
   html = `<div
         id="ring"
         style="position: absolute;
-                width: 1700px;
-                height: 1700px;
-                border-radius: 7850px;
+                width: ${this.size}px;
+                height: ${this.size}px;
+                border-radius: ${this.size/2}px;
                 background-color: rgba(0, 0, 0, 0);
                 border: 3px solid white;
                 left: 0;
@@ -25,7 +26,7 @@ export default class Ring extends PhysicsElement {
   }
 
   draw = (camera) => {
-    this.domElement.style.left = this.posX + camera.x - 700;
-    this.domElement.style.top = this.posY + camera.y - 700;
+    this.domElement.style.left = this.posX + camera.x - this.size/2;
+    this.domElement.style.top = this.posY + camera.y - this.size/2;
   };
 }
