@@ -8,21 +8,19 @@ class Room(models.Model):
 
     @classmethod
     def add_participant(cls, group_name):
-        room = cls.objects.filter(group_name=group_name).first()
+        room = Room.objects.filter(group_name=group_name).first()
         
         if not room:
             cls.objects.create(group_name=group_name, participants=1)
             return True
         
-        if room.participants == 0:
-            room.participants = 1
-            room.save()
-            return True
-    
         room.participants = room.participants + 1
         room.save()
-        return False
-    
+        
+    @classmethod
+    def player_count(cls, group_name):
+        return cls.objects.filter(group_name=group_name).first().participants
+
     def remove_participant(self):
         self.participants = self.participants - 1
         self.save()

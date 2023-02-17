@@ -79,8 +79,12 @@ WSGI_APPLICATION = "starshipbattle.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "starshipbattle",
+        "HOST": "db",
+        "USER": "starship",
+        "PORT": "5432",
+        "PASSWORD": "password"
     }
 }
 

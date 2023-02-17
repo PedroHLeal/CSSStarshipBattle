@@ -185,4 +185,10 @@ export default class Ship extends PhysicsElement {
       this.velY = this.speedLimit * direction[1];
     }
   };
+
+  setFromMessage = (message) => {
+    this.posX = message.posX;
+    this.posY = message.posY;
+    this.rotation = message.rotation;
+  }
 }

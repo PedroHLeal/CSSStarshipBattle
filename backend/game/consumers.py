@@ -1,41 +1,77 @@
 import json
 
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 
 from game.models import Room
 
 
-class GameConsumer(WebsocketConsumer):
-    def connect(self):
+class GameConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = "game_%s" % self.room_name
 
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
+        await self.channel_layer.group_add(
             self.room_group_name, self.channel_name
         )
+        await self.accept()
 
-        is_first = Room.add_participant(self.room_group_name)
-        self.accept()
+        await self._add_participant()
 
-        if is_first:
-            self.message({
-                "type": "setHost"
-            })
+        await self.send(text_data=json.dumps({
+            "message": {
+                "type": "setPlayer",
+                "playerNumber": await self._get_participant_count()
+            }
+        }))
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
             self.room_group_name, self.channel_name
         )
+        await self._remove_participant()
+
+
+    async def receive(self, text_data):
+        message = json.loads(text_data)
+        if message.get("type") == "addPlayer":
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "message", "message": {
+                    "type": "addPlayer",
+                    "playerNumber": message["playerNumber"]
+                }}
+            )
+        if message.get("type") == "shoot":
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "message", "message": {
+                    "type": "shoot"
+                }}
+            )
+        if message.get("type") == "position":
+            await self.channel_layer.group_send(
+                self.room_group_name, {"type": "message", "message": message}
+            )
+
+
+    async def message(self, event):
+        await self.send(text_data=json.dumps(event))
+
+
+    @database_sync_to_async
+    def _add_participant(self):
+        Room.add_participant(self.room_group_name)
+
+
+    @database_sync_to_async
+    def _remove_participant(self):
         room = Room.objects.filter(group_name=self.room_group_name).first()
         room.remove_participant()
 
-    def receive(self, text_data):
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name, {"type": "message", "message": text_data}
-        )
 
-    def message(self, event):
-        # Send message to WebSocket
-        self.send(text_data=json.dumps(event))
+    @database_sync_to_async
+    def _get_participant_count(self):
+        return Room.player_count(self.room_group_name)
+
