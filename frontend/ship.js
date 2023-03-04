@@ -190,5 +190,6 @@ export default class Ship extends PhysicsElement {
     this.posX = message.posX;
     this.posY = message.posY;
     this.rotation = message.rotation;
+    this.engineStatus = message.engineStatus;
   }
 }

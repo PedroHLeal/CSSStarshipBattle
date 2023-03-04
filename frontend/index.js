@@ -14,6 +14,7 @@ let ring = new Ring();
 let keysPressed = [];
 let isHost = false;
 let playerNumber = null;
+const currentPlayers = [];
 
 const playerStartingPoints = {
   1: [-50, -50],
@@ -32,19 +33,18 @@ initSockets(
         isHost = true;
         playerNumber = message.playerNumber;
         isHost = playerNumber === 1;
-        socket.send(JSON.stringify({ type: "addPlayer",  playerNumber}));
+        socket.send(JSON.stringify({ type: "addPlayer", playerNumber }));
         break;
       case "addPlayer":
-        addPlayer(
-          message.playerNumber,
-          playerStartingPoints[message.playerNumber][0],
-          playerStartingPoints[message.playerNumber][1]
-        );
+        addPlayer(message.playerNumber);
+        if (!physics.running) {
+          physics.start(60);
+        }
         break;
       case "position":
         if (message.playerNumber !== playerNumber) {
           const ship = physics.getById(`ship${message.playerNumber}`);
-          ship.setFromMessage(message)
+          ship.setFromMessage(message);
         }
     }
   },
@@ -53,11 +53,17 @@ initSockets(
   }
 );
 
-function addPlayer(number, x, y) {
-  const ship = new Ship(`ship${number}`, false);
-  ship.posX = x;
-  ship.posY = y;
-  physics.add(ship);
+function addPlayer(number) {
+  for (let i = 1; i <= number; i++) {
+    if (!currentPlayers.includes(i)) {
+      const ship = new Ship(`ship${i}`, false);
+      ship.posX = playerStartingPoints[number][0];
+      ship.posY = playerStartingPoints[number][1];
+      physics.add(ship);
+      currentPlayers.push(i);
+      console.log(currentPlayers);
+    }
+  }
 }
 
 field = document.getElementById("field");
@@ -66,8 +72,6 @@ physics = new SomeJsPhysics("field");
 ring = new Ring();
 physics.add(ring);
 keysPressed = [];
-
-physics.start(60);
 
 const toggleStop = () => {
   if (physics.running) {
@@ -133,14 +137,6 @@ physics.readKeys = (dt) => {
   if (keysPressed.includes("s")) {
     ship && ship.moveBackward(0);
   }
-
-  socket.send(JSON.stringify({
-    type: 'position',
-    playerNumber,
-    rotation: ship.rotation,
-    posX: ship.posX,
-    posY: ship.posY,
-  }))
 };
 
 physics.postUpdate = (element, i) => {
@@ -160,6 +156,17 @@ physics.postUpdate = (element, i) => {
     physics.camera.x = -ship.posX + field.getBoundingClientRect().width / 2;
     physics.camera.y = -ship.posY + field.getBoundingClientRect().height / 2;
   }
+
+  socket.send(
+    JSON.stringify({
+      type: "position",
+      playerNumber,
+      rotation: ship.rotation,
+      posX: ship.posX,
+      posY: ship.posY,
+      engineStatus: ship.engineStatus,
+    })
+  );
 };
 
 document.addEventListener("keydown", (event) => {
