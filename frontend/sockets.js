@@ -1,4 +1,4 @@
-export default function (initCallback, messageCallback, err) {
+export function initSockets(initCallback, messageCallback, err) {
   let socket = null;
 
   try {
@@ -15,4 +15,28 @@ export default function (initCallback, messageCallback, err) {
     const data = JSON.parse(e.data).message;
     messageCallback(data.type, data);
   };
+}
+
+export const sendShipPosition = (socket, ship, playerNumber) => {
+  socket.send(
+    JSON.stringify({
+      type: "shipposition",
+      playerNumber,
+      rotation: ship.rotation,
+      posX: ship.posX,
+      posY: ship.posY,
+      engineStatus: ship.engineStatus,
+    })
+  );
+}
+
+export const sendBulletPosition = (socket, bullet) => {
+  socket.send(
+    JSON.stringify({
+      type: "bulletposition",
+      posX: bullet.posX,
+      posY: bullet.posY,
+      id: bullet.id
+    })
+  );
 }

@@ -46,11 +46,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                     },
                 },
             )
-        if message.get("type") == "shoot":
-            await self.channel_layer.group_send(
-                self.room_group_name, {"type": "message", "message": {"type": "shoot"}}
-            )
-        if message.get("type") == "position":
+        else:
             await self.channel_layer.group_send(
                 self.room_group_name, {"type": "message", "message": message}
             )

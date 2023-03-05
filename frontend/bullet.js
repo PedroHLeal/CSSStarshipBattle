@@ -8,6 +8,7 @@ export default class Bullet extends PhysicsElement {
   cretionTime = new Date().getTime();
   durationTime = 2000;
   type = "bullet";
+  rotation = null;
 
   getBoundingBox = () => {
     return [{ x: this.posX, y: this.posY }];
@@ -25,6 +26,7 @@ export default class Bullet extends PhysicsElement {
     this.posX = posX;
     this.posY = posY;
     this.parent = parent;
+    this.rotation = rot;
   }
 
   draw = (camera) => {
@@ -37,5 +39,10 @@ export default class Bullet extends PhysicsElement {
     if (new Date().getTime() - this.cretionTime > this.durationTime) {
       this.shouldDestroy = true;
     }
+  }
+
+  setFromMessage = (message) => {
+    this.posX = message.posX;
+    this.posY = message.posY;
   }
 }

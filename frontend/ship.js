@@ -153,7 +153,7 @@ export default class Ship extends PhysicsElement {
     return [normalX, normalY];
   };
 
-  fire = (physics) => {
+  fire = (physics, playerNumber) => {
     const currentTime = new Date().getTime();
     if (
       !this.lastBulletShotOn ||
@@ -161,13 +161,14 @@ export default class Ship extends PhysicsElement {
     ) {
       this.lastBulletShotOn = currentTime;
       const bullet = new Bullet(
-        "bullet" + new Date().getTime(),
+        `bullet-${playerNumber}-${new Date().getTime()}`,
         this.radRotation,
         this.posX,
         this.posY,
         this
       );
       physics.add(bullet);
+      return bullet;
     }
   };
 
