@@ -26,6 +26,7 @@ export const sendShipPosition = (socket, ship, playerNumber) => {
       posX: ship.posX,
       posY: ship.posY,
       engineStatus: ship.engineStatus,
+      isImmune: ship.isImmune
     })
   );
 }
