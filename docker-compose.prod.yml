@@ -1,0 +1,24 @@
+version: "3.7"
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: backend-starshipbattle
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/usr/src/app
+    command: daphne starshipbattle.asgi:application --bind 0.0.0.0 -p 8000
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=starship
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=starshipbattle
+    ports:
+      - "5432:5432"

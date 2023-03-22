@@ -109,7 +109,7 @@ export default class Ship extends PhysicsElement {
 
     const engine = document.getElementById(this.id + "-engine");
     engine.style.opacity = +this.engineStatus;
-    this.domElement.style.opacity = +(this.isImmune && this.flickerState);
+    this.domElement.style.opacity = +(!this.isImmune || (this.isImmune && this.flickerState));
     this.domElement.style.left = (this.posX + camera.x - 20).toString();
     this.domElement.style.top = (this.posY + camera.y - 30).toString();
     this.domElement.style.transform = `rotate(${this.rotation}deg)`;
