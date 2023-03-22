@@ -4,5 +4,6 @@ ssh -i ~/Documents/ssh/starshipbattle/starshipbattle-key.pem ec2-user@ec2-3-144-
     cd /home/ec2-user/app
     rm -rf ./*
     git clone https://github.com/PedroHLeal/CSSStarshipBattle.git
+    cd CSSStarshipBattle/
     docker-compose -f docker-compose.prod.yml up
 ENDSSH
