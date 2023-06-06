@@ -1,15 +1,6 @@
 version: "3.7"
 
 services:
-  backend:
-    build:
-      context: ./backend
-    container_name: backend-starshipbattle
-    ports:
-      - 8000:8000
-    volumes:
-      - ./backend:/usr/src/app
-    command: python -u manage.py runserver 0.0.0.0:8000
   redis:
     image: redis
     ports:
@@ -22,3 +13,25 @@ services:
       - POSTGRES_DB=starshipbattle
     ports:
       - "5432:5432"
+  backend:
+    build:
+      context: ./backend
+    container_name: backend-starshipbattle
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/usr/src/app
+    command: ./serve.sh
+    depends_on:
+      - db
+      - redis
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend-starshipbattle
+    ports:
+      - 8080:80
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/local/apache2/htdocs/
