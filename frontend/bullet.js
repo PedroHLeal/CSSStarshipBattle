@@ -3,6 +3,7 @@ import PhysicsElement from "./SomeJSPhysics/somephysicsjs/PhysicsElement.js";
 export default class Bullet extends PhysicsElement {
   html =
     '<div id=":id" style="width: 5px; height: 5px; border-radius: 3px; background-color: white; position: absolute; left: :left; top: :top"></div>';
+  
   domElement = null;
   speed = 30;
   cretionTime = new Date().getTime();
@@ -14,13 +15,14 @@ export default class Bullet extends PhysicsElement {
     return [{ x: this.posX, y: this.posY }];
   };
 
-  constructor(id, rot, posX, posY, parent) {
+  constructor(id, rot, posX, posY, speed, parent) {
     super();
     this.id = id;
     this.html = this.html
       .replace(":id", id)
       .replace(":left", posX)
       .replace(":top", posY);
+    this.speed = speed || this.speed
     this.velX = this.speed * Math.sin(rot);
     this.velY = -this.speed * Math.cos(rot);
     this.posX = posX;

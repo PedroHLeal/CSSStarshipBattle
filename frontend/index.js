@@ -5,6 +5,7 @@ import Bullet from "./bullet.js";
 
 import Ship from "./ship.js";
 import Ring from "./ring.js";
+import Explosion from "./explosion.js";
 
 let socket = null;
 
@@ -115,6 +116,8 @@ const onCollision = (element, collider) => {
     collider.type === "bullet"
   ) {
     element.takeDamage([0, 0]);
+    let explosion = new Explosion(`${collider.id}-explosion`, collider.posX, collider.posY);
+    physics.add(explosion);
     collider.shouldDestroy = true;
   }
 };

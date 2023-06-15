@@ -9,9 +9,9 @@ export default class Ship extends PhysicsElement {
         id=":id">
             <div style="width: 0;
                     height: 0;
-                    border-bottom: 60px solid white;
-                    border-left: 20px solid transparent;
-                    border-right: 20px solid transparent;
+                    border-bottom: :heightpx solid white;
+                    border-left: :widthpx solid transparent;
+                    border-right: :widthpx solid transparent;
                     border-top: 0px solid transparent;"></div>
             <div id=":id-engine" 
                     style="width: 40px;
@@ -28,6 +28,8 @@ export default class Ship extends PhysicsElement {
   speedLimit = 20;
   currentSpeed = 0;
   lifes = 3;
+  height = 60;
+  width = 40;
 
   immunityTime = 3000;
   isImmune = false;
@@ -65,7 +67,9 @@ export default class Ship extends PhysicsElement {
     }
     this.html = this.html
       .replaceAll(":id", id)
-      .replace(":optransition", this.engineTurnOnTime);
+      .replace(":optransition", this.engineTurnOnTime)
+      .replace(":height", this.height)
+      .replaceAll(":width", this.width/2);
   }
 
   update = (dt) => {
@@ -163,9 +167,9 @@ export default class Ship extends PhysicsElement {
       const bullet = new Bullet(
         `bullet-${playerNumber}-${new Date().getTime()}`,
         this.radRotation,
-        this.posX,
-        this.posY,
-        this
+        this.posX + (this.height/2 + 15)*Math.sin(this.radRotation),
+        this.posY - (this.height/2 + 15)*Math.cos(this.radRotation),
+        this.currentSpeed + 30
       );
       physics.add(bullet);
       return bullet;
