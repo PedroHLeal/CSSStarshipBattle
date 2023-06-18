@@ -148,6 +148,16 @@ const handleDestroys = (element, i) => {
   }
 };
 
+const handleShipExitingRing = (element) => {
+  if (
+    element?.type === "ship" &&
+    getDistance(element.posX, element.posY, 0, 0) > ring.size / 2
+  ) {
+    element.shouldDestroy = true;
+    physics.add(new Explosion(`${element.id}-explosion`, element.posX - element.width/4, element.posY - element.height/4))
+  }
+}
+
 physics.readKeys = (dt) => {
   const ship = physics.getById(`ship${playerNumber}`);
   if (keysPressed.includes("d")) {
@@ -177,13 +187,7 @@ physics.update = (element, i, dt) => {
   }
 
   handleCollisions(element);
-
-  if (
-    element?.type === "ship" &&
-    getDistance(element.posX, element.posY, 0, 0) > ring.size / 2
-  ) {
-    element.shouldDestroy = true;
-  }
+  handleShipExitingRing(element);  
 
   handleDestroys(element, i);
 
@@ -216,8 +220,7 @@ document.addEventListener("keyup", (event) => {
 document.addEventListener("click", (event) => {
   const ship = physics.getById(`ship${playerNumber}`);
   if (ship) {
-    let bullet = null;
-    bullet = ship.fire(physics, playerNumber);
+    const bullet = ship.fire(physics, playerNumber);
     socket.send(
       JSON.stringify({
         type: "shoot",

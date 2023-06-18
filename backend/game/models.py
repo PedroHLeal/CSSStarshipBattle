@@ -1,10 +1,16 @@
 from django.db import models
 
 # Create your models here.
+ROOM_STATUS_CHOICES = (
+    ('awaiting', 'Awaiting'),
+    ('started', 'Started'),
+)
+
 
 class Room(models.Model):
     group_name = models.CharField(max_length=30, null=False)
     participants = models.IntegerField()
+    room_status = models.CharField(max_length=10, choices=ROOM_STATUS_CHOICES)
 
     @classmethod
     def add_participant(cls, group_name):

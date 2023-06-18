@@ -12,7 +12,7 @@ export default class Ship extends PhysicsElement {
                     border-bottom: :heightpx solid white;
                     border-left: :widthpx solid transparent;
                     border-right: :widthpx solid transparent;
-                    border-top: 0px solid transparent;"></div>
+                    border-top: 0px solid transparent"></div>
             <div id=":id-engine" 
                     style="width: 40px;
                             height: 15px;
@@ -34,6 +34,7 @@ export default class Ship extends PhysicsElement {
   immunityTime = 3000;
   isImmune = false;
   damageTakenTime = 0;
+  destroyAnimationTime = 1;
 
   flickerState = true;
   flickerTime = 45;
@@ -47,6 +48,7 @@ export default class Ship extends PhysicsElement {
   debug = false;
   collider = triangleCollider;
   type = "ship";
+  isDestroying = false;
 
   getBoundingBox = () => {
     return [
@@ -69,7 +71,8 @@ export default class Ship extends PhysicsElement {
       .replaceAll(":id", id)
       .replace(":optransition", this.engineTurnOnTime)
       .replace(":height", this.height)
-      .replaceAll(":width", this.width/2);
+      .replaceAll(":width", this.width/2)
+      .replace(":destroyAnimationTime", this.destroyAnimationTime);
   }
 
   update = (dt) => {
