@@ -1,6 +1,10 @@
 import SomeJsPhysics from "./SomeJSPhysics/somephysicsjs/somejsphysics.js";
 import { getDistance } from "./SomeJSPhysics/somephysicsjs/Utils/geometry.js";
-import { initSockets, sendBulletPosition, sendShipPosition } from "./sockets.js";
+import {
+  initSockets,
+  sendBulletPosition,
+  sendShipPosition,
+} from "./sockets.js";
 import Bullet from "./bullet.js";
 
 import Ship from "./ship.js";
@@ -50,12 +54,6 @@ initSockets(
           ship.setFromMessage(message);
         }
         break;
-      case "bulletposition":
-          if (!isHost) {
-            const bullet = physics.getById(message.id);
-            bullet.setFromMessage(message);
-          }
-          break;
       case "shoot":
         if (message.playerNumber !== playerNumber) {
           addBullet(message);
@@ -81,13 +79,12 @@ function addPlayer(number) {
 }
 
 function addBullet(message) {
-  const ship = physics.getById(`ship${message.playerNumber}`);
   const bullet = new Bullet(
     message.id,
     message.rotation,
     message.posX,
     message.posY,
-    ship
+    message.speed
   );
   physics.add(bullet);
 }
@@ -116,7 +113,11 @@ const onCollision = (element, collider) => {
     collider.type === "bullet"
   ) {
     element.takeDamage([0, 0]);
-    let explosion = new Explosion(`${collider.id}-explosion`, collider.posX, collider.posY);
+    let explosion = new Explosion(
+      `${collider.id}-explosion`,
+      collider.posX,
+      collider.posY
+    );
     physics.add(explosion);
     collider.shouldDestroy = true;
   }
@@ -143,8 +144,7 @@ const handleCollisions = (element) => {
 
 const handleDestroys = (element, i) => {
   if (element.shouldDestroy) {
-    physics.remove(element.id);
-    physics.fieldElements.splice(parseInt(i), 1);
+    physics.remove(element.id, i);
   }
 };
 
@@ -154,9 +154,15 @@ const handleShipExitingRing = (element) => {
     getDistance(element.posX, element.posY, 0, 0) > ring.size / 2
   ) {
     element.shouldDestroy = true;
-    physics.add(new Explosion(`${element.id}-explosion`, element.posX - element.width/4, element.posY - element.height/4))
+    physics.add(
+      new Explosion(
+        `${element.id}-explosion`,
+        element.posX - element.width / 4,
+        element.posY - element.height / 4
+      )
+    );
   }
-}
+};
 
 physics.readKeys = (dt) => {
   const ship = physics.getById(`ship${playerNumber}`);
@@ -178,18 +184,14 @@ physics.readKeys = (dt) => {
 };
 
 physics.update = (element, i, dt) => {
-  if (element?.type === "bullet" && isHost) {
-    element.update(dt);
-    sendBulletPosition(socket, element, playerNumber);
-  } else if (element?.type === "ship" && element.id === `ship${playerNumber}`) {
-    element.update(dt);
+  element.update(dt);
+
+  if (element?.type === "ship" && element.id === `ship${playerNumber}`) {
     sendShipPosition(socket, element, playerNumber);
   }
 
   handleCollisions(element);
-  handleShipExitingRing(element);  
-
-  handleDestroys(element, i);
+  handleShipExitingRing(element);
 
   const ship = physics.getById(`ship${playerNumber}`);
   if (ship) {
@@ -200,6 +202,8 @@ physics.update = (element, i, dt) => {
   if (!element.shouldDestroy) {
     element.draw(camera);
   }
+
+  handleDestroys(element, i);
 };
 
 document.addEventListener("keydown", (event) => {
@@ -219,8 +223,8 @@ document.addEventListener("keyup", (event) => {
 
 document.addEventListener("click", (event) => {
   const ship = physics.getById(`ship${playerNumber}`);
-  if (ship) {
-    const bullet = ship.fire(physics, playerNumber);
+  const bullet = ship?.fire(physics, playerNumber);
+  if (ship && bullet) {
     socket.send(
       JSON.stringify({
         type: "shoot",
@@ -229,6 +233,7 @@ document.addEventListener("click", (event) => {
         playerNumber,
         rotation: bullet.rotation,
         id: bullet.id,
+        speed: bullet.speed,
       })
     );
   }

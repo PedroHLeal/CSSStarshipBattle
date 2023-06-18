@@ -6,7 +6,7 @@ export default class Bullet extends PhysicsElement {
   
   domElement = null;
   speed = 30;
-  cretionTime = new Date().getTime();
+  creationTime = new Date().getTime();
   durationTime = 2000;
   type = "bullet";
   rotation = null;
@@ -36,9 +36,9 @@ export default class Bullet extends PhysicsElement {
     this.domElement.style.top = (this.posY - 5 + camera.y).toString();
   };
 
-  update(dt) {
+  update = (dt) => {
     super.update(dt);
-    if (new Date().getTime() - this.cretionTime > this.durationTime) {
+    if (new Date().getTime() - this.creationTime > this.durationTime) {
       this.shouldDestroy = true;
     }
   }
