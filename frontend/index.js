@@ -59,6 +59,13 @@ initSockets(
           addBullet(message);
         }
         break;
+      case "bullet-hit":
+        if (message.playerNumber !== playerNumber) {
+          const ship = physics.getById(message.shipId);
+          const bullet = physics.getById(message.bulletId);
+          bulletHit(ship, bullet);
+        }
+        break;
     }
   },
   (err) => {
@@ -89,6 +96,17 @@ function addBullet(message) {
   physics.add(bullet);
 }
 
+function bulletHit(ship, bullet) {
+  ship.takeDamage([0, 0]);
+  let explosion = new Explosion(
+    `${bullet.id}-explosion`,
+    bullet.posX,
+    bullet.posY
+  );
+  physics.add(explosion);
+  bullet.shouldDestroy = true;
+}
+
 field = document.getElementById("field");
 physics = new SomeJsPhysics("field");
 
@@ -112,14 +130,13 @@ const onCollision = (element, collider) => {
     collider.parent !== element &&
     collider.type === "bullet"
   ) {
-    element.takeDamage([0, 0]);
-    let explosion = new Explosion(
-      `${collider.id}-explosion`,
-      collider.posX,
-      collider.posY
-    );
-    physics.add(explosion);
-    collider.shouldDestroy = true;
+    socket.send(
+      JSON.stringify({
+        type: "bullet-hit",
+        bulletId: collider.id,
+        shipId: element.id
+      })
+    )
   }
 };
 
@@ -144,7 +161,7 @@ const handleCollisions = (element) => {
 
 const handleDestroys = (element, i) => {
   if (element.shouldDestroy) {
-    physics.remove(element.id, i);
+    physics.remove(element);
   }
 };
 
@@ -190,7 +207,9 @@ physics.update = (element, i, dt) => {
     sendShipPosition(socket, element, playerNumber);
   }
 
-  handleCollisions(element);
+  if (isHost) {
+    handleCollisions(element);
+  }
   handleShipExitingRing(element);
 
   const ship = physics.getById(`ship${playerNumber}`);
