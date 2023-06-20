@@ -5,30 +5,26 @@ export default class Bullet extends PhysicsElement {
     '<div id=":id" style="width: 5px; height: 5px; border-radius: 3px; background-color: white; position: absolute; left: :left; top: :top"></div>';
   
   domElement = null;
-  speed = 30;
   creationTime = new Date().getTime();
   durationTime = 2000;
   type = "bullet";
-  rotation = null;
 
   getBoundingBox = () => {
     return [{ x: this.posX, y: this.posY }];
   };
 
-  constructor(id, rot, posX, posY, speed, parent) {
+  constructor(id, posX, posY, velX, velY, parent) {
     super();
     this.id = id;
     this.html = this.html
       .replace(":id", id)
       .replace(":left", posX)
       .replace(":top", posY);
-    this.speed = speed || this.speed
-    this.velX = this.speed * Math.sin(rot);
-    this.velY = -this.speed * Math.cos(rot);
+    this.velX = velX ;
+    this.velY = velY ;
     this.posX = posX;
     this.posY = posY;
     this.parent = parent;
-    this.rotation = rot;
   }
 
   draw = (camera) => {

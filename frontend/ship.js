@@ -49,6 +49,7 @@ export default class Ship extends PhysicsElement {
   collider = triangleCollider;
   type = "ship";
   isDestroying = false;
+  bulletSpeed = 30;
 
   getBoundingBox = () => {
     return [
@@ -71,7 +72,7 @@ export default class Ship extends PhysicsElement {
       .replaceAll(":id", id)
       .replace(":optransition", this.engineTurnOnTime)
       .replace(":height", this.height)
-      .replaceAll(":width", this.width/2)
+      .replaceAll(":width", this.width / 2)
       .replace(":destroyAnimationTime", this.destroyAnimationTime);
   }
 
@@ -116,7 +117,10 @@ export default class Ship extends PhysicsElement {
 
     const engine = document.getElementById(this.id + "-engine");
     engine.style.opacity = +this.engineStatus;
-    this.domElement.style.opacity = +(!this.isImmune || (this.isImmune && this.flickerState));
+    this.domElement.style.opacity = +(
+      !this.isImmune ||
+      (this.isImmune && this.flickerState)
+    );
     this.domElement.style.left = (this.posX + camera.x - 20).toString();
     this.domElement.style.top = (this.posY + camera.y - 30).toString();
     this.domElement.style.transform = `rotate(${this.rotation}deg)`;
@@ -169,10 +173,11 @@ export default class Ship extends PhysicsElement {
       this.lastBulletShotOn = currentTime;
       const bullet = new Bullet(
         `bullet-${playerNumber}-${new Date().getTime()}`,
-        this.radRotation,
-        this.posX + (this.height/2 + 15)*Math.sin(this.radRotation),
-        this.posY - (this.height/2 + 15)*Math.cos(this.radRotation),
-        this.currentSpeed + 30
+        this.posX + (this.height / 2 + 15) * Math.sin(this.radRotation),
+        this.posY - (this.height / 2 + 15) * Math.cos(this.radRotation),
+        this.velX + this.bulletSpeed * Math.sin(this.radRotation),
+        this.velY - this.bulletSpeed * Math.cos(this.radRotation),
+        this
       );
       physics.add(bullet);
       return bullet;
@@ -180,18 +185,16 @@ export default class Ship extends PhysicsElement {
   };
 
   takeDamage = (direction) => {
-    if (!this.isImmune) {
-      this.damageTakenTime = new Date().getTime();
-      this.isImmune = true;
-      this.lifes--;
+    this.damageTakenTime = new Date().getTime();
+    this.isImmune = true;
+    this.lifes--;
 
-      if (this.lifes < 0) {
-        this.shouldDestroy = true;
-      }
-
-      this.velX = this.speedLimit * direction[0];
-      this.velY = this.speedLimit * direction[1];
+    if (this.lifes < 0) {
+      this.shouldDestroy = true;
     }
+
+    this.velX = this.speedLimit * direction[0];
+    this.velY = this.speedLimit * direction[1];
   };
 
   setFromMessage = (message) => {
@@ -200,5 +203,5 @@ export default class Ship extends PhysicsElement {
     this.rotation = message.rotation;
     this.engineStatus = message.engineStatus;
     this.isImmune = message.isImmune;
-  }
+  };
 }

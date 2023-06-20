@@ -60,7 +60,7 @@ initSockets(
         }
         break;
       case "bullet-hit":
-        if (message.playerNumber !== playerNumber) {
+        if (!isHost) {
           const ship = physics.getById(message.shipId);
           const bullet = physics.getById(message.bulletId);
           bulletHit(ship, bullet);
@@ -86,24 +86,29 @@ function addPlayer(number) {
 }
 
 function addBullet(message) {
+  const parent = physics.getById(message.parentId);
   const bullet = new Bullet(
     message.id,
-    message.rotation,
     message.posX,
     message.posY,
-    message.speed
+    message.velX,
+    message.velY,
+    parent
   );
   physics.add(bullet);
 }
 
 function bulletHit(ship, bullet) {
-  ship.takeDamage([0, 0]);
-  let explosion = new Explosion(
-    `${bullet.id}-explosion`,
-    bullet.posX,
-    bullet.posY
-  );
-  physics.add(explosion);
+  if (!ship.isImmune) {
+    ship.takeDamage([0, 0]);
+    let explosion = new Explosion(
+      `${bullet.id}-explosion`,
+      bullet.posX,
+      bullet.posY
+    );
+    physics.add(explosion);
+  }
+
   bullet.shouldDestroy = true;
 }
 
@@ -130,24 +135,21 @@ const onCollision = (element, collider) => {
     collider.parent !== element &&
     collider.type === "bullet"
   ) {
+    bulletHit(element, collider);
     socket.send(
       JSON.stringify({
         type: "bullet-hit",
         bulletId: collider.id,
-        shipId: element.id
+        shipId: element.id,
       })
-    )
+    );
   }
 };
 
 const handleCollisions = (element) => {
-  if (element.collider) {
+  if (element.getBoundingBox && element.collider) {
     for (const colliderElement of physics.fieldElements) {
-      if (
-        colliderElement != element &&
-        colliderElement.getBoundingBox &&
-        element.getBoundingBox
-      ) {
+      if (colliderElement != element && colliderElement.getBoundingBox) {
         for (const point of colliderElement.getBoundingBox()) {
           if (element.collider(element.getBoundingBox(), point)) {
             onCollision(element, colliderElement);
@@ -249,10 +251,11 @@ document.addEventListener("click", (event) => {
         type: "shoot",
         posX: bullet.posX,
         posY: bullet.posY,
+        velX: bullet.velX,
+        velY: bullet.velY,
         playerNumber,
-        rotation: bullet.rotation,
         id: bullet.id,
-        speed: bullet.speed,
+        parentId: bullet.parent.id
       })
     );
   }
