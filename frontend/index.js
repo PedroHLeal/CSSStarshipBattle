@@ -1,5 +1,7 @@
 import SomeJsPhysics from "./SomeJSPhysics/somephysicsjs/somejsphysics.js";
 import { getDistance } from "./SomeJSPhysics/somephysicsjs/Utils/geometry.js";
+import global from "./global.js";
+
 import {
   initSockets,
   sendBulletPosition,
@@ -10,6 +12,7 @@ import Bullet from "./bullet.js";
 import Ship from "./ship.js";
 import Ring from "./ring.js";
 import Explosion from "./explosion.js";
+import Meteor from "./meteor.js";
 
 let socket = null;
 
@@ -114,10 +117,12 @@ function bulletHit(ship, bullet) {
 
 field = document.getElementById("field");
 physics = new SomeJsPhysics("field");
+global.physics = physics;
 
 ring = new Ring();
 physics.add(ring);
 keysPressed = [];
+physics.add(new Meteor('meteor', 0, 0, 10, 0, 70, 70));
 
 const toggleStop = () => {
   if (physics.running) {
@@ -203,6 +208,7 @@ physics.readKeys = (dt) => {
 };
 
 physics.update = (element, i, dt) => {
+  global.dt = dt;
   element.update(dt);
 
   if (element?.type === "ship" && element.id === `ship${playerNumber}`) {
@@ -218,6 +224,8 @@ physics.update = (element, i, dt) => {
   if (ship) {
     camera.x = -ship.posX + field.getBoundingClientRect().width / 2;
     camera.y = -ship.posY + field.getBoundingClientRect().height / 2;
+    global.camera.x = camera.x;
+    global.camera.y = camera.y;
   }
 
   if (!element.shouldDestroy) {
