@@ -39,4 +39,12 @@ export default class Meteor extends PhysicsElement {
     this.domElement.style.top = this.posY + camera.y - this.width/2;
     this.domElement.style.left = this.posX + camera.x - this.height/2;
   };
+
+  update = (dt) => {
+    super.update(dt);
+
+    if (Math.abs(this.posX) > 1000 || Math.abs(this.posY) > 1000) {
+      this.shouldDestroy = true;
+    }
+  }
 }

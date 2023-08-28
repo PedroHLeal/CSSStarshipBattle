@@ -12,7 +12,6 @@ import Bullet from "./bullet.js";
 import Ship from "./ship.js";
 import Ring from "./ring.js";
 import Explosion from "./explosion.js";
-import Meteor from "./meteor.js";
 
 let socket = null;
 
@@ -122,7 +121,6 @@ global.physics = physics;
 ring = new Ring();
 physics.add(ring);
 keysPressed = [];
-physics.add(new Meteor('meteor', 0, 0, 10, 0, 70, 70));
 
 const toggleStop = () => {
   if (physics.running) {
@@ -217,6 +215,7 @@ physics.update = (element, i, dt) => {
 
   if (isHost) {
     handleCollisions(element);
+    // setMeteorFields();
   }
   handleShipExitingRing(element);
 
@@ -263,7 +262,7 @@ document.addEventListener("click", (event) => {
         velY: bullet.velY,
         playerNumber,
         id: bullet.id,
-        parentId: bullet.parent.id
+        parentId: bullet.parent.id,
       })
     );
   }

@@ -90,7 +90,7 @@ export default class BurnTrail extends PhysicsElement {
       global.physics.add(
         new TrailParticle(
           `${this.id}-trail-particle-${(new Date()).getTime()}`,
-          2000,
+          1000,
           this.posX,
           this.posY
         )
@@ -98,6 +98,10 @@ export default class BurnTrail extends PhysicsElement {
     }
     this.posX = this.parent.posX;
     this.posY = this.parent.posY;
+
+    if (this.parent.shouldDestroy) {
+      this.shouldDestroy = true;
+    }
   };
 
   draw = (camera) => {
