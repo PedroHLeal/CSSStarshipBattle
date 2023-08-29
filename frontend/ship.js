@@ -105,7 +105,6 @@ export default class Ship extends PhysicsElement {
     }
 
     this.clearForces();
-    console.log(this.posX);
   };
 
   draw = (camera) => {

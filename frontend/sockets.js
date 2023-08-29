@@ -1,8 +1,8 @@
-export function initSockets(initCallback, messageCallback, err) {
+export function initSockets(room, initCallback, messageCallback, err) {
   let socket = null;
 
   try {
-    socket = new WebSocket("ws://localhost:8000/ws/game/boobies/");
+    socket = new WebSocket(`ws://localhost:8000/ws/game/${room}/`);
   } catch (e) {
     err(e);
   }

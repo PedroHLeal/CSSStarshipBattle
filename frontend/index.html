@@ -1,7 +1,16 @@
-<body style="margin: 0">
-    <div
-        id="field" style="width: 100vw; height: 100vh; position: relative; background-color: black; overflow: hidden;"
-    ></div>
-</body>
+<!DOCTYPE html>
+<link rel="stylesheet" href="index.css">
+<html>
+    <title>StarshipBattle!!</title>
+    <body id="intro" class="intro">
+        <div class="menu-holder">
+            <span class="title">Starship Battle</span>
+            <div class="form-holder">
+                <input oninput="validateGameRoom(this.value)" type="text" id="game-room-input" placeholder="Enter game room name...">
+                <button type="button" id="join-button" class="join-button" disabled onclick="buttonClicked()">JOIN</button>
+            </div>
+        </div>
+    </body>
+</html>
 
-<script src="index.js" type="module"></script>
+<script src="index.js"></script>
