@@ -5,7 +5,7 @@ intro = document.getElementById('intro');
 intro.style.opacity = 1;
 
 function validateGameRoom(value) {
-    const re = /^[a-zA-Z]+[a-zA-Z-]+[a-zA-Z]+$/; 
+    const re = /^[a-zA-Z]+$/; 
 
     if (value.length >= 3 && re.test(value)) {
         button.disabled = false;
@@ -15,7 +15,7 @@ function validateGameRoom(value) {
 }
 
 function buttonClicked() {
-    window.location.href = `/game?room=${input.value}`;
+    window.location.href = `/game.html?room=${input.value}`;
 }
 
 function getStarHTML() {

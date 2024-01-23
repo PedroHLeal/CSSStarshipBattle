@@ -12,6 +12,7 @@ import Bullet from "./bullet.js";
 import Ship from "./ship.js";
 import Ring from "./ring.js";
 import Explosion from "./explosion.js";
+import Backdrop from "./backdrop.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 const gameRoomName = urlParams.getAll("room")[0];
@@ -21,12 +22,12 @@ let socket = null;
 let field = null;
 let physics = null;
 
-let ring = new Ring();
 let keysPressed = [];
 let isHost = false;
 let playerNumber = null;
 const currentPlayers = [];
 const camera = { x: 0, y: 0 };
+let backdropAdded = false;
 
 const playerStartingPoints = {
   1: [-50, -50],
@@ -43,7 +44,6 @@ initSockets(
   (type, message) => {
     switch (type) {
       case "setPlayer":
-        isHost = true;
         playerNumber = message.playerNumber;
         isHost = playerNumber === 1;
         socket.send(JSON.stringify({ type: "addPlayer", playerNumber }));
@@ -121,8 +121,7 @@ function bulletHit(ship, bullet) {
 field = document.getElementById("field");
 physics = new SomeJsPhysics("field");
 global.physics = physics;
-
-ring = new Ring();
+let ring = new Ring();
 physics.add(ring);
 keysPressed = [];
 
@@ -229,6 +228,12 @@ physics.update = (element, i, dt) => {
     camera.y = -ship.posY + field.getBoundingClientRect().height / 2;
     global.camera.x = camera.x;
     global.camera.y = camera.y;
+  }
+
+  if ((!ship || ship.shouldDestroy) && !backdropAdded) {
+    let backdrop = new Backdrop();
+    physics.add(backdrop);
+    backdropAdded = true;
   }
 
   if (!element.shouldDestroy) {
